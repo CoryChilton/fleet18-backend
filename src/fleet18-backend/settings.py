@@ -56,7 +56,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'fleet18.urls'
+ROOT_URLCONF = 'fleet18-backend.urls'
 
 TEMPLATES = [
     {
@@ -73,7 +73,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'fleet18.wsgi.application'
+WSGI_APPLICATION = 'fleet18-backend.wsgi.application'
 
 
 # Database
