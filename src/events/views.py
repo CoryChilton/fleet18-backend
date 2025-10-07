@@ -1,16 +1,26 @@
-from .models import Event
+from .models import Event, Result
 from rest_framework import viewsets, permissions
-from .serializers import EventSerializer
+from .serializers import EventSerializer, ResultSerializer
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.utils import timezone
 
 class EventViewSet(viewsets.ModelViewSet):
     """
-    API endpoint for announcements.
+    API endpoint for events.
     """
     queryset = Event.objects.all()
     permission_classes = [
         permissions.AllowAny
     ]
     serializer_class = EventSerializer
+
+class ResultViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint for results.
+    """
+    queryset = Result.objects.all()
+    permission_classes = [
+        permissions.AllowAny
+    ]
+    serializer_class = ResultSerializer

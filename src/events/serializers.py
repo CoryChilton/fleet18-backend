@@ -1,4 +1,4 @@
-from .models import Event
+from .models import Event, Result
 from rest_framework import serializers
 from django.utils import timezone
 
@@ -22,3 +22,10 @@ class EventSerializer(serializers.ModelSerializer):
         if value < 0:
             raise serializers.ValidationError("Entry fee must be non-negative.")
         return value
+
+class ResultSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Result
+        fields = '__all__'
+    
+    
