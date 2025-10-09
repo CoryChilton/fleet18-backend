@@ -14,18 +14,12 @@ class EventSerializer(serializers.ModelSerializer):
         if value < timezone.now():
             raise serializers.ValidationError("Event time cannot be in the past.")
         return value
-    
-    def validate_entry_fee(self, value):
-        """
-        Check the entry fee is non-negative
-        """
-        if value < 0:
-            raise serializers.ValidationError("Entry fee must be non-negative.")
-        return value
+
 
 class ResultSerializer(serializers.ModelSerializer):
     class Meta:
         model = Result
         fields = '__all__'
+    
     
     

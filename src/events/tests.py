@@ -137,7 +137,7 @@ class ResultTestCase(TestCase):
             'status': 'FIN',
             'position': 0,
         })
-        self.assertEqual(response1.status_code, 400)
+        self.assertEqual(response2.status_code, 400)
     
     def test_invalid_status(self):
         response1 = self.c.post('/api/results/', {
