@@ -1,8 +1,8 @@
-from .models import Blog
+from .models import BlogPost
 from rest_framework import serializers
 from django.utils import timezone
 
-class BlogSerializer(serializers.ModelSerializer):
+class BlogPostSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Blog
+        model = BlogPost
         fields = '__all__'
