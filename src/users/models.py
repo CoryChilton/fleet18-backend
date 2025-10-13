@@ -17,7 +17,11 @@ class Racer(models.Model):
 
 
 class User(AbstractUser):
-    racer = models.OneToOneField(Racer, on_delete=models.SET_NULL, related_name="user", null=True)
+    # username and password are always required
+    first_name = models.CharField(max_length=150, blank=False)
+    last_name = models.CharField(max_length=150, blank=False)
+    email = models.EmailField(blank=False, unique=True)
+    racer = models.OneToOneField(Racer, on_delete=models.SET_NULL, related_name="user", null=True, blank=True)
 
 
 
