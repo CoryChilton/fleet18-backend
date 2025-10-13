@@ -1,4 +1,6 @@
 from .models import Racer, User
+from notifications.models import NotificationPreference
+from notifications.serializers import NotificationPreferenceSerializer
 from rest_framework import viewsets, permissions
 from .serializers import RacerSerializer, UserSerializer
 from rest_framework.decorators import action
@@ -14,6 +16,13 @@ class UserViewSet(viewsets.ModelViewSet):
         permissions.AllowAny
     ]
     serializer_class = UserSerializer
+
+    @action(detail=True, methods=['get'])
+    def notification_preferences(self, request, pk=None):
+        user = self.get_object()
+        prefs = NotificationPreference.objects.filter(user=user)
+        serializer = NotificationPreferenceSerializer(prefs, many=True)
+        return Response(serializer.data)
 
 class RacerViewSet(viewsets.ModelViewSet):
     """
