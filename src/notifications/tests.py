@@ -68,3 +68,28 @@ class NotificationPreferenceTestCase(TestCase):
         })
         self.assertEqual(response.status_code, 400)
 
+    def test_user_specific_notif_prefs(self):
+        user = User.objects.create_user(
+            username='test2',
+            password='pass1',
+            first_name='first1',
+            last_name='last1',
+            email='test2@test.com'
+        )
+        NotificationPreference.objects.create(
+            user=user,
+            notification_type='EVENT_REMINDER',
+        )
+        response1 = self.c.get('/api/users/1/notification-preferences/').data
+        self.assertEqual(len(response1), 2)
+        for pref in response1:
+            self.assertEqual(pref['user'], 1)
+        response2 = self.c.get('/api/users/2/notification-preferences/').data
+        self.assertEqual(len(response2), 1)
+        for pref in response2:
+            self.assertEqual(pref['user'], 2)
+
+        
+
+        
+

@@ -17,7 +17,7 @@ class UserViewSet(viewsets.ModelViewSet):
     ]
     serializer_class = UserSerializer
 
-    @action(detail=True, methods=['get'])
+    @action(detail=True, methods=['get'], url_path='notification-preferences')
     def notification_preferences(self, request, pk=None):
         user = self.get_object()
         prefs = NotificationPreference.objects.filter(user=user)
