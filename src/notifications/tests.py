@@ -31,15 +31,15 @@ class NotificationPreferenceTestCase(TestCase):
         
 
     def test_list(self):
-        prefs = self.c.get('/api/notification_preferences/').data
+        prefs = self.c.get('/api/notification-preferences/').data
         self.assertEqual(len(prefs), 2)
 
     def test_detail(self):
-        pref = self.c.get('/api/notification_preferences/1/').data
+        pref = self.c.get('/api/notification-preferences/1/').data
         self.assertEqual(pref['notification_type'], 'BLOG')
     
     def test_create(self):
-        response = self.c.post('/api/notification_preferences/', {
+        response = self.c.post('/api/notification-preferences/', {
             'user': 1,
             'notification_type': NotificationPreference.ANNOUNCEMENT,
             'enabled': True
@@ -49,20 +49,20 @@ class NotificationPreferenceTestCase(TestCase):
         self.assertEqual(pref.notification_type, 'ANNOUNCEMENT')
     
     def test_delete(self):
-        response = self.c.delete('/api/notification_preferences/1/')
+        response = self.c.delete('/api/notification-preferences/1/')
         self.assertEqual(response.status_code, 204)
         with self.assertRaises(NotificationPreference.DoesNotExist):
             NotificationPreference.objects.get(pk=1)
     
     def test_duplicate_user_notif_type(self):
-        response = self.c.post('/api/notification_preferences/', {
+        response = self.c.post('/api/notification-preferences/', {
             'user': 1,
             'notification_type': NotificationPreference.BLOG_POST,
         })
         self.assertEqual(response.status_code, 400)
 
     def test_invalid_notif_type(self):
-        response = self.c.post('/api/notification_preferences/', {
+        response = self.c.post('/api/notification-preferences/', {
             'user': 1,
             'notification_type': 'TEST',
         })
