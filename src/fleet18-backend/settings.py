@@ -126,7 +126,8 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
-# Media files (user uploaded)
+# Media files (user uploaded) (this is for development, will need to revisit for production)
+
 MEDIA_ROOT = BASE_DIR / 'media'
 MEDIA_URL = '/media/'
 
@@ -134,3 +135,8 @@ MEDIA_URL = '/media/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Emails
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = 'noreply@example.com'
