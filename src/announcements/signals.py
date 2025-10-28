@@ -12,16 +12,10 @@ def send_announcement_created_email(sender, instance, created, **kwargs):
             .values_list('user__email', flat=True)
         
         recipient_list = list(recipient_queryset)
-        # send_mail(
-        #     subject=f'Fleet18 Announcement: {instance.title}',
-        #     message=f'{instance.author.first_name} {instance.author.last_name} made the following announcement:\n{instance.content}',
-        #     from_email=None,
-        #     recipient_list=recipient_list
-        # )
         msg = EmailMultiAlternatives(
             subject=f'Fleet18 Announcement: {instance.title}',
             body=f'{instance.author.first_name} {instance.author.last_name} made the following announcement:\n{instance.content}',
-            from_email=None,
+            from_email='announcements@corychilton.com',
             to=recipient_list
             # change to bcc in production
         )
