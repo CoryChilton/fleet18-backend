@@ -6,5 +6,4 @@ class AnnouncementsConfig(AppConfig):
     name = 'announcements'
 
     def ready(self):
-
         from . import signals
