@@ -1,4 +1,4 @@
-from .models import Event, Result
+from .models import Event, Result, Race
 from rest_framework import serializers
 from django.utils import timezone
 
@@ -14,6 +14,12 @@ class EventSerializer(serializers.ModelSerializer):
         if value < timezone.now():
             raise serializers.ValidationError("Event time cannot be in the past.")
         return value
+
+
+class RaceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Race
+        fields = '__all__'
 
 
 class ResultSerializer(serializers.ModelSerializer):
