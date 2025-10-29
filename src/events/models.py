@@ -16,6 +16,30 @@ class Event(models.Model):
         validators=[MinValueValidator(0)]
     )
 
+
+class Race(models.Model):
+    SLALOM = "SLALOM"
+    COURSE = "COURSE"
+    RACE_TYPE_CHOICES = {
+        SLALOM: "Slalom",
+        COURSE: "Course"
+    }
+
+    event = models.ForeignKey(Event, on_delete=models.PROTECT)
+    # which race it is within the event
+    number = models.PositiveSmallIntegerField()
+    type = models.CharField(max_length=15, choices=RACE_TYPE_CHOICES)
+    name = models.CharField(max_length=150, blank=True, null=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['event', 'number'],
+                name='unique_event_race_number'
+            )
+        ]
+
+
 class Result(models.Model):
     FINISHED = "FIN"
     DID_NOT_FINISH = "DNF"
@@ -28,7 +52,7 @@ class Result(models.Model):
         DISQUALIFIED: "Disqualified"
     }
 
-    event = models.ForeignKey(Event, on_delete=models.PROTECT)
+    race = models.ForeignKey(Race, on_delete=models.PROTECT)
     racer = models.ForeignKey(Racer, on_delete=models.PROTECT)
     position = models.PositiveSmallIntegerField(
         null=True, 
