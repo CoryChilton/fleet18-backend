@@ -17,6 +17,7 @@ DJANGO_ENV = os.environ.get("DJANGO_ENV", "development")
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+print(BASE_DIR)
 
 
 # Quick-start development settings - unsuitable for production
@@ -49,6 +50,7 @@ INSTALLED_APPS = [
     'users',
     'rest_framework',
     'django_cleanup.apps.CleanupConfig',
+    'django_crontab'
 ]
 
 MIDDLEWARE = [
@@ -149,4 +151,8 @@ else:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
     DEFAULT_FROM_EMAIL = 'noreply@corychilton.com'
 
+# Cron jobs (uses django_crontab)
 
+CRONJOBS = [
+    ('0 9 * * *', 'events.cron.send_event_reminders', f'>> {str(BASE_DIR / 'events/cron_logs.log')} 2>&1')
+]

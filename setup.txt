@@ -1,0 +1,7 @@
+export aws credentials
+python manage.py run server # start the django server
+python manage.py crontab add # add django-crontab cronjobs to run
+
+
+teardown:
+python manage.py crontab remove # remove all django-crontab cronjobs
