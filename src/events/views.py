@@ -15,6 +15,13 @@ class EventViewSet(viewsets.ModelViewSet):
     ]
     serializer_class = EventSerializer
 
+    @action(detail=True, methods=['get'], url_path='results')
+    def results(self, request, pk=None):
+        event = self.get_object()
+        results = Result.objects.filter(event=event)
+        serializer = ResultSerializer(results, many=True)
+        return Response(serializer.data)
+
 class ResultViewSet(viewsets.ModelViewSet):
     """
     API endpoint for results.
