@@ -12,6 +12,8 @@ class EventTestCase(TestCase):
             title='Test Event',
             event_time='2100-10-1T00:00:00Z',
             entry_fee=12.34,
+            description='test event description',
+            location='Leo Ryan Park'
         )
         Event.objects.create(
             title='Test Event 2',
@@ -24,6 +26,8 @@ class EventTestCase(TestCase):
         self.assertEqual(event.title, 'Test Event')
         self.assertEqual(event.event_time, datetime.datetime(2100, 10, 1, 0, 0, tzinfo=datetime.timezone.utc))
         self.assertEqual(float(event.entry_fee), 12.34)
+        self.assertEqual(event.description, 'test event description')
+        self.assertEqual(event.location, 'Leo Ryan Park')
     
     def test_list(self):
         events = self.c.get('/api/events/').data
