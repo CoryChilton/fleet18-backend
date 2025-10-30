@@ -20,15 +20,17 @@ class Event(models.Model):
 class Race(models.Model):
     SLALOM = "SLALOM"
     COURSE = "COURSE"
+    MARATHON = "MARATHON"
     RACE_TYPE_CHOICES = {
         SLALOM: "Slalom",
-        COURSE: "Course"
+        COURSE: "Course",
+        MARATHON: "Marathon"
     }
 
     event = models.ForeignKey(Event, on_delete=models.PROTECT)
     # which race it is within the event
     number = models.PositiveSmallIntegerField()
-    type = models.CharField(max_length=15, choices=RACE_TYPE_CHOICES)
+    type = models.CharField(max_length=15, choices=RACE_TYPE_CHOICES, default=COURSE)
     name = models.CharField(max_length=150, blank=True, null=True)
 
     class Meta:
