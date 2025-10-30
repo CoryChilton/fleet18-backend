@@ -245,7 +245,6 @@ class ResultTestCase(TestCase):
         response2 = self.c.get('/api/events/2/results/').data
         self.assertEqual(len(response2), 0)
 
-
     def test_race_results(self):
         race = Race.objects.create(
             event_id=1,
@@ -254,4 +253,14 @@ class ResultTestCase(TestCase):
         response1 = self.c.get('/api/races/1/results/').data
         self.assertEqual(len(response1), 2)
         response2 = self.c.get('/api/races/2/results/').data
+        self.assertEqual(len(response2), 0)
+
+    def test_racer_results(self):
+        racer = Racer.objects.create(
+            first_name='Cory2',
+            last_name='Chilton2'
+        )
+        response1 = self.c.get('/api/racers/1/results/').data
+        self.assertEqual(len(response1), 2)
+        response2 = self.c.get('/api/racers/2/results/').data
         self.assertEqual(len(response2), 0)
