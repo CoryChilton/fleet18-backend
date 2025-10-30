@@ -233,3 +233,25 @@ class ResultTestCase(TestCase):
             'position': 1,
         })
         self.assertEqual(response1.status_code, 400)
+
+    def test_event_results(self):
+        event = Event.objects.create(
+            title='Test Event 2',
+            event_time='2100-10-1T00:00:00Z',
+            entry_fee=12.34,
+        )
+        response1 = self.c.get('/api/events/1/results/').data
+        self.assertEqual(len(response1), 2)
+        response2 = self.c.get('/api/events/2/results/').data
+        self.assertEqual(len(response2), 0)
+
+
+    def test_race_results(self):
+        race = Race.objects.create(
+            event_id=1,
+            number=2,
+        )
+        response1 = self.c.get('/api/races/1/results/').data
+        self.assertEqual(len(response1), 2)
+        response2 = self.c.get('/api/races/2/results/').data
+        self.assertEqual(len(response2), 0)
