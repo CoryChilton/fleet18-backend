@@ -63,4 +63,11 @@ class Result(models.Model):
     )
     status = models.CharField(max_length=3, choices=STATUS_CHOICES, default=FINISHED)
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['race', 'racer'],
+                name='unique_race_racer'
+            )
+        ]
 
