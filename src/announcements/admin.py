@@ -1,4 +1,5 @@
 from django.contrib import admin
+
 from announcements.models import Announcement
 
 # Register your models here.

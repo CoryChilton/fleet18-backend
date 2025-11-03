@@ -1,8 +1,10 @@
 from django.db import models
-from users.models import User
+
 from events.models import Event
+from users.models import User
 
 # Create your models here.
+
 
 class BlogPost(models.Model):
     title = models.CharField(max_length=150)

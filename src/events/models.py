@@ -1,8 +1,10 @@
-from django.db import models
-from users.models import Racer
 from django.core.validators import MinValueValidator
+from django.db import models
+
+from users.models import Racer
 
 # Create your models here.
+
 
 class Event(models.Model):
     title = models.CharField(max_length=150)
@@ -11,9 +13,7 @@ class Event(models.Model):
     created_timestamp = models.DateTimeField(auto_now_add=True)
     location = models.CharField(max_length=255, blank=True, null=True)
     entry_fee = models.DecimalField(
-        decimal_places=2,
-        max_digits=6, 
-        validators=[MinValueValidator(0)]
+        decimal_places=2, max_digits=6, validators=[MinValueValidator(0)]
     )
 
 
@@ -21,11 +21,7 @@ class Race(models.Model):
     SLALOM = "SLALOM"
     COURSE = "COURSE"
     MARATHON = "MARATHON"
-    RACE_TYPE_CHOICES = {
-        SLALOM: "Slalom",
-        COURSE: "Course",
-        MARATHON: "Marathon"
-    }
+    RACE_TYPE_CHOICES = {SLALOM: "Slalom", COURSE: "Course", MARATHON: "Marathon"}
 
     event = models.ForeignKey(Event, on_delete=models.PROTECT)
     # which race it is within the event
@@ -36,8 +32,7 @@ class Race(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=['event', 'number'],
-                name='unique_event_race_number'
+                fields=["event", "number"], name="unique_event_race_number"
             )
         ]
 
@@ -51,23 +46,17 @@ class Result(models.Model):
         FINISHED: "Finished",
         DID_NOT_FINISH: "DNF",
         DID_NOT_START: "DNS",
-        DISQUALIFIED: "Disqualified"
+        DISQUALIFIED: "Disqualified",
     }
 
     race = models.ForeignKey(Race, on_delete=models.PROTECT)
     racer = models.ForeignKey(Racer, on_delete=models.PROTECT)
     position = models.PositiveSmallIntegerField(
-        null=True, 
-        blank=True,
-        validators=[MinValueValidator(1)]
+        null=True, blank=True, validators=[MinValueValidator(1)]
     )
     status = models.CharField(max_length=3, choices=STATUS_CHOICES, default=FINISHED)
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(
-                fields=['race', 'racer'],
-                name='unique_race_racer'
-            )
+            models.UniqueConstraint(fields=["race", "racer"], name="unique_race_racer")
         ]
-

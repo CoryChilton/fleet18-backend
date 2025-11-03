@@ -1,5 +1,7 @@
 from django.db import models
+
 from users.models import User
+
 
 # Create your models here.
 class NotificationPreference(models.Model):
@@ -9,7 +11,7 @@ class NotificationPreference(models.Model):
     NOTIFICATION_TYPES = {
         BLOG_POST: "New blog posts",
         ANNOUNCEMENT: "New announcement",
-        EVENT_REMINDER: "Event reminders"
+        EVENT_REMINDER: "Event reminders",
     }
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     notification_type = models.CharField(max_length=20, choices=NOTIFICATION_TYPES)
@@ -18,8 +20,7 @@ class NotificationPreference(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=['user', 'notification_type'],
-                name='unique_user_notification_type'
+                fields=["user", "notification_type"],
+                name="unique_user_notification_type",
             )
         ]
-

@@ -1,14 +1,16 @@
-from .models import Event, Result, Race
-from rest_framework import serializers
 from django.utils import timezone
+from rest_framework import serializers
+
+from .models import Event, Race, Result
+
 
 class EventSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
-        fields = '__all__'
+        fields = "__all__"
 
     def validate_event_time(self, value):
-        """"
+        """ "
         Check that the expiration timestamp is greater than current time
         """
         if value < timezone.now():
@@ -19,13 +21,10 @@ class EventSerializer(serializers.ModelSerializer):
 class RaceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Race
-        fields = '__all__'
+        fields = "__all__"
 
 
 class ResultSerializer(serializers.ModelSerializer):
     class Meta:
         model = Result
-        fields = '__all__'
-    
-    
-    
+        fields = "__all__"

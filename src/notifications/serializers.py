@@ -1,8 +1,10 @@
-from .models import NotificationPreference
-from rest_framework import serializers
 from django.utils import timezone
+from rest_framework import serializers
+
+from .models import NotificationPreference
+
 
 class NotificationPreferenceSerializer(serializers.ModelSerializer):
     class Meta:
         model = NotificationPreference
-        fields = '__all__'
+        fields = "__all__"

@@ -1,11 +1,18 @@
 from django.db import models
-from users.models import User
-from events.models import Event
 from django.utils import timezone
+
+from events.models import Event
+from users.models import User
+
 
 # Create your models here.
 class EventPhoto(models.Model):
-    photo = models.ImageField(upload_to='event_photos/', height_field="height", width_field="width", unique=True)
+    photo = models.ImageField(
+        upload_to="event_photos/",
+        height_field="height",
+        width_field="width",
+        unique=True,
+    )
     height = models.PositiveSmallIntegerField(blank=True)
     width = models.PositiveSmallIntegerField(blank=True)
     photo_taken_timestamp = models.DateTimeField(default=timezone.now)

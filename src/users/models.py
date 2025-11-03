@@ -1,7 +1,8 @@
-from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.db import models
 
 # Create your models here.
+
 
 class Racer(models.Model):
     first_name = models.CharField(max_length=150)
@@ -10,8 +11,7 @@ class Racer(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=['first_name', 'last_name'],
-                name='unique_first_last_name'
+                fields=["first_name", "last_name"], name="unique_first_last_name"
             )
         ]
 
@@ -21,7 +21,6 @@ class User(AbstractUser):
     first_name = models.CharField(max_length=150, blank=False)
     last_name = models.CharField(max_length=150, blank=False)
     email = models.EmailField(blank=False, unique=True)
-    racer = models.OneToOneField(Racer, on_delete=models.SET_NULL, related_name="user", null=True, blank=True)
-
-
-
+    racer = models.OneToOneField(
+        Racer, on_delete=models.SET_NULL, related_name="user", null=True, blank=True
+    )
