@@ -1,4 +1,5 @@
 import datetime
+import logging
 from zoneinfo import ZoneInfo
 
 from django.core.mail import EmailMultiAlternatives
@@ -10,10 +11,14 @@ from .models import Event
 
 
 def send_event_reminders():
-    print("Sending event reminders")
-    pst = ZoneInfo("America/Los_Angeles")
-    now_pst = timezone.now().astimezone(pst)
-    start_of_tomorrow_pst = (now_pst + datetime.timedelta(days=1)).replace(
+    """
+    Sends reminders to all users that have opted in to event reminders for events
+    happening tomorrow in PST.
+    """
+    logging.info("Sending event reminders")
+    pt = ZoneInfo("America/Los_Angeles")
+    now_pt = timezone.now().astimezone(pt)
+    start_of_tomorrow_pst = (now_pt + datetime.timedelta(days=1)).replace(
         hour=0, minute=0, second=0, microsecond=0
     )
     end_of_tomorrow_pst = start_of_tomorrow_pst + datetime.timedelta(days=1)

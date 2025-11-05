@@ -1,6 +1,7 @@
 src/events/cron_logs.log
 todo.txt
 .DS_Store
+sandbox.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
