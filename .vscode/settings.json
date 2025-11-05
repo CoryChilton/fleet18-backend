@@ -1,0 +1,14 @@
+{
+    // Use Ruff as the Python formatter
+    "editor.formatOnSave": true,
+    "[python]": {
+        "editor.defaultFormatter": "charliermarsh.ruff"
+    },
+    // Lint and auto-fix with Ruff on save
+    "ruff.lintOnSave": true,
+    "ruff.fixOnSave": true,
+    // Optional: run both format and check fixes on save
+    "editor.codeActionsOnSave": {
+        "source.fixAll": true
+    }
+}
