@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "photos",
     "users",
     "rest_framework",
+    "tests",
     "django_cleanup.apps.CleanupConfig",
     "django_crontab",
 ]
