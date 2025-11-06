@@ -1,15 +1,20 @@
+from django.contrib.auth import authenticate
+from django.contrib.auth.password_validation import validate_password
 from django.utils import timezone
 from rest_framework import serializers
 
 from .models import Racer, User
 
 
-class UserSerializer(serializers.ModelSerializer):
-    password2 = serializers.CharField(style={"input_type": "password"}, write_only=True)
+class RegisterSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(
+        write_only=True, required=True, validators=[validate_password]
+    )
+    password2 = serializers.CharField(write_only=True, required=True)
 
     class Meta:
         model = User
-        fields = [
+        fields = (
             "id",
             "first_name",
             "last_name",
@@ -18,8 +23,7 @@ class UserSerializer(serializers.ModelSerializer):
             "racer",
             "password",
             "password2",
-        ]
-        extra_kwargs = {"password": {"write_only": True}}
+        )
 
     def validate(self, attrs):
         if attrs["password"] != attrs["password2"]:
@@ -29,8 +33,34 @@ class UserSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
-        del validated_data["password2"]
+        validated_data.pop("password2")
         return User.objects.create_user(**validated_data)
+
+
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField()
+
+    def validate(self, data):
+        user = authenticate(**data)
+        if user and user.is_active:
+            return {"user": user}
+        raise serializers.ValidationError("Invalid credentials")
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = [
+            "id",
+            "first_name",
+            "last_name",
+            "username",
+            "email",
+            "racer",
+            "is_active",
+            "is_staff",
+        ]
 
 
 class RacerSerializer(serializers.ModelSerializer):
