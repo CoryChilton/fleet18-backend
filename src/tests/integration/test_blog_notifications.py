@@ -1,11 +1,7 @@
-import time
-
 from django.core import mail
-from django.core.mail import send_mail
 from django.test import TestCase, override_settings
 from rest_framework.test import APIClient
 
-from blog.models import BlogPost
 from events.models import Event
 from notifications.models import NotificationPreference
 from users.models import User
@@ -29,6 +25,8 @@ class BlogEmailTests(TestCase):
             last_name="last2",
             email="test2@test.com",
         )
+        # Authenticate as user1 for creating blog posts
+        self.c.force_authenticate(user=user1)
         event = Event.objects.create(
             title="Test Event",
             event_time="2100-10-1T00:00:00Z",
@@ -43,7 +41,7 @@ class BlogEmailTests(TestCase):
     def test_user_receives_blog_email_with_pref_on(self):
         response = self.c.post(
             "/api/blog_posts/",
-            {"title": "title", "author": 1, "content": "content", "event": 1},
+            {"title": "title", "content": "content", "event": 1},
         )
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(mail.outbox[0].from_email, "blog@corychilton.com")
@@ -57,20 +55,19 @@ class BlogEmailTests(TestCase):
         )
         response = self.c.post(
             "/api/blog_posts/",
-            {"title": "title", "author": 1, "content": "content", "event": 1},
+            {"title": "title", "content": "content", "event": 1},
         )
         self.assertEqual(len(mail.outbox), 1)
         self.assertTrue("test1@test.com" in mail.outbox[0].to)
         self.assertTrue("test2@test.com" in mail.outbox[0].to)
 
     def test_user_with_pref_off_does_not_receive_blog_email(self):
-        NotificationPreference.objects.update(
+        NotificationPreference.objects.filter(
             user_id=1,
             notification_type=NotificationPreference.BLOG_POST,
-            enabled=False,
-        )
+        ).update(enabled=False)
         response = self.c.post(
             "/api/blog_posts/",
-            {"title": "title", "author": 1, "content": "content", "event": 1},
+            {"title": "title", "content": "content", "event": 1},
         )
         self.assertEqual(len(mail.outbox), 0)

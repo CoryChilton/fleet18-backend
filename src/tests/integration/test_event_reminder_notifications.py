@@ -2,7 +2,6 @@ from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
 from django.core import mail
-from django.core.mail import send_mail
 from django.test import TestCase, override_settings
 from rest_framework.test import APIClient
 
@@ -30,6 +29,16 @@ class AnnouncementEmailTests(TestCase):
             last_name="last2",
             email="test2@test.com",
         )
+        # Create admin user for creating events
+        admin_user = User.objects.create_user(
+            username="admin",
+            password="admin",
+            first_name="admin",
+            last_name="admin",
+            email="admin@test.com",
+            is_staff=True,
+        )
+        self.c.force_authenticate(user=admin_user)
         NotificationPreference.objects.create(
             user=user1,
             notification_type=NotificationPreference.EVENT_REMINDER,
@@ -79,11 +88,10 @@ class AnnouncementEmailTests(TestCase):
         tom_iso_pt = (
             datetime.now(ZoneInfo("America/Los_Angeles")) + timedelta(days=1)
         ).isoformat()
-        NotificationPreference.objects.update(
+        NotificationPreference.objects.filter(
             user_id=1,
             notification_type=NotificationPreference.EVENT_REMINDER,
-            enabled=False,
-        )
+        ).update(enabled=False)
         response = self.c.post(
             "/api/events/",
             {

@@ -12,16 +12,19 @@ from .models import Announcement
 class AnnouncementTestCase(TestCase):
     def setUp(self):
         self.c = APIClient()
-        user = User.objects.create(username="testuser", password="testpassword")
+        user = User.objects.create(
+            username="testuser", password="testpassword", is_staff=True
+        )
+        self.c.force_authenticate(user=user)
         Announcement.objects.create(
             title="Test Announcement",
-            author=user,
+            user=user,
             content="test content",
             expiration_timestamp="2100-10-1T00:00:00Z",
         )
         Announcement.objects.create(
             title="Test Announcement 2",
-            author=user,
+            user=user,
             content="test content 2",
             expiration_timestamp="2100-10-1T00:00:00Z",
         )
@@ -30,7 +33,7 @@ class AnnouncementTestCase(TestCase):
         user = User.objects.get(pk=1)
         announcement = Announcement.objects.get(pk=1)
         self.assertEqual(announcement.title, "Test Announcement")
-        self.assertEqual(announcement.author, user)
+        self.assertEqual(announcement.user, user)
         self.assertEqual(announcement.content, "test content")
         self.assertEqual(
             announcement.expiration_timestamp,
@@ -57,7 +60,7 @@ class AnnouncementTestCase(TestCase):
             "/api/announcements/",
             {
                 "title": "Test Announcement 3",
-                "author": 1,
+                "user": 1,
                 "content": "test content 3",
                 "expiration_timestamp": "2100-10-1T00:00:00Z",
             },
@@ -77,7 +80,7 @@ class AnnouncementTestCase(TestCase):
             "/api/announcements/",
             {
                 "title": "Test Announcement 3",
-                "author": 1,
+                "user": 1,
                 "content": "test content 3",
                 "expiration_timestamp": "2000-10-1T00:00:00Z",
             },

@@ -9,6 +9,16 @@ from .models import Racer, User
 class RacerTestCase(TestCase):
     def setUp(self):
         self.c = APIClient()
+        # Create admin user for write operations
+        admin_user = User.objects.create_user(
+            username="admin",
+            password="admin",
+            first_name="admin",
+            last_name="admin",
+            email="admin@test.com",
+            is_staff=True,
+        )
+        self.c.force_authenticate(user=admin_user)
         Racer.objects.create(first_name="Test1", last_name="Racer1")
         Racer.objects.create(first_name="Test2", last_name="Racer2")
 
@@ -49,6 +59,16 @@ class RacerTestCase(TestCase):
 class UserTestCase(TestCase):
     def setUp(self):
         self.c = APIClient()
+        # Create admin user for all operations (IsAdminUser requires admin for all)
+        admin_user = User.objects.create_user(
+            username="admin",
+            password="admin",
+            first_name="admin",
+            last_name="admin",
+            email="admin@test.com",
+            is_staff=True,
+        )
+        self.c.force_authenticate(user=admin_user)
         racer = Racer.objects.create(first_name="Test1", last_name="Racer1")
         User.objects.create_user(
             username="test1",
@@ -99,7 +119,7 @@ class UserTestCase(TestCase):
             },
         )
         self.assertEqual(response.status_code, 201)
-        user = User.objects.get(pk=3)
+        user = User.objects.get(pk=4)
         self.assertEqual(user.username, "test3")
         self.assertTrue(user.check_password("pass3"))
         self.assertFalse(user.check_password("test3"))

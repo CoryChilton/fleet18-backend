@@ -16,6 +16,7 @@ class NotificationPreferenceTestCase(TestCase):
             last_name="last1",
             email="test1@test.com",
         )
+        self.c.force_authenticate(user=user)
         NotificationPreference.objects.create(
             user=user, notification_type="BLOG", enabled=True
         )
@@ -42,7 +43,6 @@ class NotificationPreferenceTestCase(TestCase):
         response = self.c.post(
             "/api/notification-preferences/",
             {
-                "user": 1,
                 "notification_type": NotificationPreference.ANNOUNCEMENT,
                 "enabled": True,
             },
@@ -61,8 +61,8 @@ class NotificationPreferenceTestCase(TestCase):
         response = self.c.post(
             "/api/notification-preferences/",
             {
-                "user": 1,
                 "notification_type": NotificationPreference.BLOG_POST,
+                "enabled": True,
             },
         )
         self.assertEqual(response.status_code, 400)
@@ -71,14 +71,13 @@ class NotificationPreferenceTestCase(TestCase):
         response = self.c.post(
             "/api/notification-preferences/",
             {
-                "user": 1,
                 "notification_type": "TEST",
             },
         )
         self.assertEqual(response.status_code, 400)
 
     def test_user_specific_notif_prefs(self):
-        user = User.objects.create_user(
+        user2 = User.objects.create_user(
             username="test2",
             password="pass1",
             first_name="first1",
@@ -86,14 +85,17 @@ class NotificationPreferenceTestCase(TestCase):
             email="test2@test.com",
         )
         NotificationPreference.objects.create(
-            user=user,
+            user=user2,
             notification_type="EVENT_REMINDER",
         )
-        response1 = self.c.get("/api/users/1/notification-preferences/").data
+        # Test as user 1 - should only see their own preferences
+        response1 = self.c.get("/api/notification-preferences/").data
         self.assertEqual(len(response1), 2)
         for pref in response1:
             self.assertEqual(pref["user"], 1)
-        response2 = self.c.get("/api/users/2/notification-preferences/").data
+        # Switch to user 2
+        self.c.force_authenticate(user=user2)
+        response2 = self.c.get("/api/notification-preferences/").data
         self.assertEqual(len(response2), 1)
         for pref in response2:
             self.assertEqual(pref["user"], 2)

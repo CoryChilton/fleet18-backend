@@ -18,7 +18,7 @@ def send_announcement_created_email(sender, instance, created, **kwargs):
         msg = EmailMultiAlternatives(
             subject=f"New Fleet18 Announcement: {instance.title}",
             body=(
-                f"{instance.author.first_name} {instance.author.last_name} "
+                f"{instance.user.first_name} {instance.user.last_name} "
                 f"made the following announcement:\n\n{instance.content}"
             ),
             from_email="announcements@corychilton.com",

@@ -1,11 +1,7 @@
-import time
-
 from django.core import mail
-from django.core.mail import send_mail
 from django.test import TestCase, override_settings
 from rest_framework.test import APIClient
 
-from announcements.models import Announcement
 from notifications.models import NotificationPreference
 from users.models import User
 
@@ -28,6 +24,16 @@ class AnnouncementEmailTests(TestCase):
             last_name="last2",
             email="test2@test.com",
         )
+        # Create admin user for creating announcements
+        admin_user = User.objects.create_user(
+            username="admin",
+            password="admin",
+            first_name="admin",
+            last_name="admin",
+            email="admin@test.com",
+            is_staff=True,
+        )
+        self.c.force_authenticate(user=admin_user)
         NotificationPreference.objects.create(
             user=user1,
             notification_type=NotificationPreference.ANNOUNCEMENT,
@@ -39,7 +45,7 @@ class AnnouncementEmailTests(TestCase):
             "/api/announcements/",
             {
                 "title": "Test Announcement",
-                "author": 1,
+                "user": 1,
                 "content": "test content",
                 "expiration_timestamp": "2100-10-1T00:00:00Z",
             },
@@ -58,7 +64,7 @@ class AnnouncementEmailTests(TestCase):
             "/api/announcements/",
             {
                 "title": "Test Announcement",
-                "author": 1,
+                "user": 1,
                 "content": "test content",
                 "expiration_timestamp": "2100-10-1T00:00:00Z",
             },
@@ -68,16 +74,15 @@ class AnnouncementEmailTests(TestCase):
         self.assertTrue("test2@test.com" in mail.outbox[0].to)
 
     def test_user_with_pref_off_does_not_receive_announcement_email(self):
-        NotificationPreference.objects.update(
+        NotificationPreference.objects.filter(
             user_id=1,
             notification_type=NotificationPreference.ANNOUNCEMENT,
-            enabled=False,
-        )
+        ).update(enabled=False)
         response = self.c.post(
             "/api/announcements/",
             {
                 "title": "Test Announcement",
-                "author": 1,
+                "user": 1,
                 "content": "test content",
                 "expiration_timestamp": "2100-10-1T00:00:00Z",
             },

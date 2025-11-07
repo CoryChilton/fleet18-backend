@@ -3,7 +3,7 @@ import datetime
 from django.test import TestCase
 from rest_framework.test import APIClient
 
-from users.models import Racer
+from users.models import Racer, User
 
 from .models import Event, Race, Result
 
@@ -11,6 +11,10 @@ from .models import Event, Race, Result
 class EventTestCase(TestCase):
     def setUp(self):
         self.c = APIClient()
+        user = User.objects.create(
+            username="testuser", password="testpassword", is_staff=True
+        )
+        self.c.force_authenticate(user=user)
         Event.objects.create(
             title="Test Event",
             event_time="2100-10-1T00:00:00Z",
@@ -88,6 +92,10 @@ class EventTestCase(TestCase):
 class RaceTestCase(TestCase):
     def setUp(self):
         self.c = APIClient()
+        user = User.objects.create(
+            username="testuser", password="testpassword", is_staff=True
+        )
+        self.c.force_authenticate(user=user)
         event = Event.objects.create(
             title="Test Event",
             event_time="2100-10-1T00:00:00Z",
@@ -148,6 +156,10 @@ class RaceTestCase(TestCase):
 class ResultTestCase(TestCase):
     def setUp(self):
         self.c = APIClient()
+        user = User.objects.create(
+            username="testuser", password="testpassword", is_staff=True
+        )
+        self.c.force_authenticate(user=user)
         event = Event.objects.create(
             title="Test Event",
             event_time="2100-10-1T00:00:00Z",

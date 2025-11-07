@@ -29,6 +29,7 @@ class EventPhotoTestCase(TestCase):
             last_name="last1",
             email="test1@test.com",
         )
+        self.c.force_authenticate(user=user)
         event = Event.objects.create(
             title="Test Event 1",
             event_time="2101-10-1T00:00:00Z",
@@ -37,7 +38,7 @@ class EventPhotoTestCase(TestCase):
         with open("tests/test_files/greek-fleet.JPG", "rb") as f:
             EventPhoto.objects.create(
                 photo=File(f),
-                poster=user,
+                user=user,
                 caption="test caption",
                 event=event,
             )
@@ -45,7 +46,7 @@ class EventPhotoTestCase(TestCase):
         with open("tests/test_files/windsurfer_logo.png", "rb") as f:
             EventPhoto.objects.create(
                 photo=File(f),
-                poster=user,
+                user=user,
                 caption="test caption2",
                 event=event,
             )
@@ -56,7 +57,7 @@ class EventPhotoTestCase(TestCase):
         self.assertTrue(event_photo.photo.storage.exists(event_photo.photo.name))
         self.assertEqual(event_photo.height, 750)
         self.assertEqual(event_photo.width, 1285)
-        self.assertEqual(event_photo.poster_id, 1)
+        self.assertEqual(event_photo.user_id, 1)
         self.assertEqual(event_photo.caption, "test caption")
         self.assertEqual(event_photo.event_id, 1)
 
@@ -74,7 +75,6 @@ class EventPhotoTestCase(TestCase):
                 "/api/event-photos/",
                 {
                     "photo": File(f),
-                    "poster": 1,
                     "caption": "test create caption",
                 },
                 format="multipart",
@@ -103,7 +103,6 @@ class EventPhotoTestCase(TestCase):
                 "/api/event-photos/",
                 {
                     "photo": File(f),
-                    "poster": 1,
                     "caption": "test create caption",
                 },
                 format="multipart",
