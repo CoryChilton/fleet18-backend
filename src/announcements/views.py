@@ -3,6 +3,8 @@ from rest_framework import permissions, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from core.permissions import IsAdminOrReadOnly
+
 from .models import Announcement
 from .serializers import AnnouncementSerializer
 
@@ -13,7 +15,7 @@ class AnnouncementViewSet(viewsets.ModelViewSet):
     """
 
     queryset = Announcement.objects.all()
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [IsAdminOrReadOnly]
     serializer_class = AnnouncementSerializer
 
     @action(detail=False, methods=["get"])

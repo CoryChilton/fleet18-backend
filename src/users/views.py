@@ -7,6 +7,7 @@ from rest_framework.authtoken.serializers import AuthTokenSerializer
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from core.permissions import IsAdminOrReadOnly
 from events.models import Result
 from events.serializers import ResultSerializer
 from notifications.models import NotificationPreference
@@ -74,7 +75,7 @@ class RacerViewSet(viewsets.ModelViewSet):
     """
 
     queryset = Racer.objects.all()
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [IsAdminOrReadOnly]
     serializer_class = RacerSerializer
 
     @action(detail=True, methods=["get"], url_path="results")

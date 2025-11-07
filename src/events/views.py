@@ -3,6 +3,8 @@ from rest_framework import permissions, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from core.permissions import IsAdminOrReadOnly
+
 from .models import Event, Race, Result
 from .serializers import EventSerializer, RaceSerializer, ResultSerializer
 
@@ -13,7 +15,7 @@ class EventViewSet(viewsets.ModelViewSet):
     """
 
     queryset = Event.objects.all()
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [IsAdminOrReadOnly]
     serializer_class = EventSerializer
 
     @action(detail=True, methods=["get"], url_path="results")
@@ -30,7 +32,7 @@ class RaceViewSet(viewsets.ModelViewSet):
     """
 
     queryset = Race.objects.all()
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [IsAdminOrReadOnly]
     serializer_class = RaceSerializer
 
     @action(detail=True, methods=["get"], url_path="results")
@@ -47,5 +49,5 @@ class ResultViewSet(viewsets.ModelViewSet):
     """
 
     queryset = Result.objects.all()
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [IsAdminOrReadOnly]
     serializer_class = ResultSerializer

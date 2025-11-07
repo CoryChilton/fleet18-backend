@@ -24,3 +24,6 @@ class NotificationPreference(models.Model):
                 name="unique_user_notification_type",
             )
         ]
+
+    def __str__(self):
+        return f"{self.user}, {self.notification_type}, {self.enabled}"

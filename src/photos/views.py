@@ -7,6 +7,8 @@ from rest_framework import permissions, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from core.permissions import IsOwnerOrReadOnly
+
 from .models import EventPhoto
 from .serializers import EventPhotoSerializer
 
@@ -17,10 +19,13 @@ class EventPhotoViewSet(viewsets.ModelViewSet):
     """
 
     queryset = EventPhoto.objects.all()
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
     serializer_class = EventPhotoSerializer
 
     def perform_create(self, serializer):
+        """
+        Set EXIF DateTime as photo_taken_timestamp if it exists
+        """
         photo_file = self.request.FILES.get("photo")
         photo_taken_timestamp = None
 
@@ -49,6 +54,9 @@ class EventPhotoViewSet(viewsets.ModelViewSet):
                 print(f"EXIF read failed: {e}")
 
         if photo_taken_timestamp:
-            serializer.save(photo_taken_timestamp=photo_taken_timestamp)
+            serializer.save(
+                photo_taken_timestamp=photo_taken_timestamp,
+                user=self.request.user,
+            )
         else:
-            serializer.save()
+            serializer.save(user=self.request.user)

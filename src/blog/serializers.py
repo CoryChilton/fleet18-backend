@@ -8,3 +8,4 @@ class BlogPostSerializer(serializers.ModelSerializer):
     class Meta:
         model = BlogPost
         fields = "__all__"
+        read_only_fields = ["user"]

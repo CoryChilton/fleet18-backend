@@ -7,3 +7,4 @@ class EventPhotoSerializer(serializers.ModelSerializer):
     class Meta:
         model = EventPhoto
         fields = "__all__"
+        read_only_fields = ["user"]

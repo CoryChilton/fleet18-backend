@@ -17,6 +17,6 @@ class EventPhoto(models.Model):
     width = models.PositiveSmallIntegerField(blank=True)
     photo_taken_timestamp = models.DateTimeField(default=timezone.now)
     upload_timestamp = models.DateTimeField(auto_now_add=True)
-    poster = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     caption = models.CharField(max_length=255, blank=True, null=True)
     event = models.ForeignKey(Event, on_delete=models.PROTECT, blank=True, null=True)
