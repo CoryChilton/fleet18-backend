@@ -292,9 +292,12 @@ class ResultTestCase(TestCase):
             event_time="2100-10-1T00:00:00Z",
             entry_fee=12.34,
         )
-        response1 = self.c.get("/api/events/1/results/").data
+        params1 = {"race__event": 1}
+        response1 = self.c.get("/api/results/", data=params1).data
         self.assertEqual(len(response1), 2)
-        response2 = self.c.get("/api/events/2/results/").data
+
+        params2 = {"race__event": 2}
+        response2 = self.c.get("/api/results/", data=params2).data
         self.assertEqual(len(response2), 0)
 
     def test_race_results(self):
@@ -302,14 +305,20 @@ class ResultTestCase(TestCase):
             event_id=1,
             number=3,
         )
-        response1 = self.c.get("/api/races/1/results/").data
+        params1 = {"race": 1}
+        response1 = self.c.get("/api/results/", data=params1).data
         self.assertEqual(len(response1), 1)
-        response2 = self.c.get("/api/races/3/results/").data
+
+        params2 = {"race": 3}
+        response2 = self.c.get("/api/results/", data=params2).data
         self.assertEqual(len(response2), 0)
 
     def test_racer_results(self):
         racer = Racer.objects.create(first_name="Cory2", last_name="Chilton2")
-        response1 = self.c.get("/api/racers/1/results/").data
+        params1 = {"racer": 1}
+        response1 = self.c.get("/api/results/", data=params1).data
         self.assertEqual(len(response1), 2)
-        response2 = self.c.get("/api/racers/2/results/").data
+
+        params2 = {"racer": 2}
+        response2 = self.c.get("/api/results/", data=params2).data
         self.assertEqual(len(response2), 0)

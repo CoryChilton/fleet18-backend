@@ -45,7 +45,6 @@ class LoginView(KnoxLoginView):
 
     def post(self, request, format=None):
         serializer = LoginSerializer(data=request.data)
-        # print(request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data["user"]
         login(request, user)
@@ -61,13 +60,6 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAdminUser]
     serializer_class = UserSerializer
 
-    # @action(detail=True, methods=["get"], url_path="notification-preferences")
-    # def notification_preferences(self, request, pk=None):
-    #     user = self.get_object()
-    #     prefs = NotificationPreference.objects.filter(user=user)
-    #     serializer = NotificationPreferenceSerializer(prefs, many=True)
-    #     return Response(serializer.data)
-
 
 class RacerViewSet(viewsets.ModelViewSet):
     """
@@ -77,10 +69,3 @@ class RacerViewSet(viewsets.ModelViewSet):
     queryset = Racer.objects.all()
     permission_classes = [IsAdminOrReadOnly]
     serializer_class = RacerSerializer
-
-    @action(detail=True, methods=["get"], url_path="results")
-    def results(self, request, pk=None):
-        racer = self.get_object()
-        results = Result.objects.filter(racer=racer)
-        serializer = ResultSerializer(results, many=True)
-        return Response(serializer.data)

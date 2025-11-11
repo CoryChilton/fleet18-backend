@@ -41,6 +41,10 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django_cleanup.apps.CleanupConfig",
+    "django_crontab",
+    "knox",
+    "django_filters",
     "announcements",
     "blog",
     "events",
@@ -50,12 +54,12 @@ INSTALLED_APPS = [
     "users",
     "rest_framework",
     "tests",
-    "django_cleanup.apps.CleanupConfig",
-    "django_crontab",
-    "knox",
 ]
 
-REST_FRAMEWORK = {"DEFAULT_AUTHENTICATION_CLASSES": ("knox.auth.TokenAuthentication",)}
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": ("knox.auth.TokenAuthentication",),
+    "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
+}
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
