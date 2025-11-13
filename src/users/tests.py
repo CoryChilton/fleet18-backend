@@ -232,7 +232,7 @@ class LoginTestCase(TestCase):
         response = self.c.post(
             "/api/auth/login/",
             {
-                "username": "test1",
+                "identifier": "test1",
                 "password": "pass1",
             },
         )
@@ -283,7 +283,7 @@ class LogoutTestCase(TestCase):
         response1 = self.c.post(
             "/api/auth/login/",
             {
-                "username": "test1",
+                "identifier": "test1",
                 "password": "pass1",
             },
         )
@@ -308,7 +308,7 @@ class LogoutTestCase(TestCase):
         response1 = self.c.post(
             "/api/auth/login/",
             {
-                "username": "test1",
+                "identifier": "test1",
                 "password": "pass1",
             },
         )
@@ -316,7 +316,7 @@ class LogoutTestCase(TestCase):
         response2 = self.c.post(
             "/api/auth/login/",
             {
-                "username": "test1",
+                "identifier": "test1",
                 "password": "pass1",
             },
         )

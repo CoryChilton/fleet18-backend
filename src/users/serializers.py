@@ -1,5 +1,6 @@
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
+from django.db.models import Q
 from django.utils import timezone
 from rest_framework import serializers
 
@@ -38,11 +39,23 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 class LoginSerializer(serializers.Serializer):
-    username = serializers.CharField()
+    identifier = serializers.CharField()
     password = serializers.CharField()
 
     def validate(self, data):
-        user = authenticate(**data)
+        identifier = data.get("identifier")
+        password = data.get("password")
+
+        # Look up user  by username or email
+        try:
+            user_obj = User.objects.get(
+                Q(username=identifier) | Q(email__iexact=identifier)
+            )
+        except User.DoesNotExist:
+            raise serializers.ValidationError("Invalid credentials") from None
+
+        # Authenticate using the username
+        user = authenticate(username=user_obj.username, password=password)
         if user and user.is_active:
             return {"user": user}
         raise serializers.ValidationError("Invalid credentials")
