@@ -11,14 +11,14 @@ from users.models import User
 class BlogEmailTests(TestCase):
     def setUp(self):
         self.c = APIClient()
-        user1 = User.objects.create_user(
+        self.user1 = User.objects.create_user(
             username="test1",
             password="pass1",
             first_name="first1",
             last_name="last1",
             email="test1@test.com",
         )
-        user2 = User.objects.create_user(
+        self.user2 = User.objects.create_user(
             username="test2",
             password="pass2",
             first_name="first2",
@@ -26,14 +26,14 @@ class BlogEmailTests(TestCase):
             email="test2@test.com",
         )
         # Authenticate as user1 for creating blog posts
-        self.c.force_authenticate(user=user1)
-        event = Event.objects.create(
+        self.c.force_authenticate(user=self.user1)
+        self.event = Event.objects.create(
             title="Test Event",
             event_time="2100-10-1T00:00:00Z",
             entry_fee=12.34,
         )
         NotificationPreference.objects.create(
-            user=user1,
+            user=self.user1,
             notification_type=NotificationPreference.BLOG_POST,
             enabled=True,
         )
@@ -41,7 +41,7 @@ class BlogEmailTests(TestCase):
     def test_user_receives_blog_email_with_pref_on(self):
         response = self.c.post(
             "/api/blog_posts/",
-            {"title": "title", "content": "content", "event": 1},
+            {"title": "title", "content": "content", "event": self.event.id},
         )
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(mail.outbox[0].from_email, "blog@corychilton.com")
@@ -49,13 +49,13 @@ class BlogEmailTests(TestCase):
 
     def test_multiple_users_receive_blog_emails(self):
         NotificationPreference.objects.create(
-            user_id=2,
+            user=self.user2,
             notification_type=NotificationPreference.BLOG_POST,
             enabled=True,
         )
         response = self.c.post(
             "/api/blog_posts/",
-            {"title": "title", "content": "content", "event": 1},
+            {"title": "title", "content": "content", "event": self.event.id},
         )
         self.assertEqual(len(mail.outbox), 1)
         self.assertTrue("test1@test.com" in mail.outbox[0].to)
@@ -63,11 +63,11 @@ class BlogEmailTests(TestCase):
 
     def test_user_with_pref_off_does_not_receive_blog_email(self):
         NotificationPreference.objects.filter(
-            user_id=1,
+            user=self.user1,
             notification_type=NotificationPreference.BLOG_POST,
         ).update(enabled=False)
         response = self.c.post(
             "/api/blog_posts/",
-            {"title": "title", "content": "content", "event": 1},
+            {"title": "title", "content": "content", "event": self.event.id},
         )
         self.assertEqual(len(mail.outbox), 0)

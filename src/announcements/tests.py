@@ -12,32 +12,32 @@ from .models import Announcement
 class AnnouncementTestCase(TestCase):
     def setUp(self):
         self.c = APIClient()
-        user = User.objects.create(
+        self.user1 = User.objects.create_user(
             username="testuser", password="testpassword", is_staff=True
         )
-        self.c.force_authenticate(user=user)
-        Announcement.objects.create(
+        self.c.force_authenticate(user=self.user1)
+        self.ann1 = Announcement.objects.create(
             title="Test Announcement",
-            user=user,
+            user=self.user1,
             content="test content",
             expiration_timestamp="2100-10-1T00:00:00Z",
         )
-        Announcement.objects.create(
+        self.ann2 = Announcement.objects.create(
             title="Test Announcement 2",
-            user=user,
+            user=self.user1,
             content="test content 2",
             expiration_timestamp="2100-10-1T00:00:00Z",
         )
 
     def test_model(self):
-        user = User.objects.get(pk=1)
-        announcement = Announcement.objects.get(pk=1)
+        user = self.user1
+        announcement = self.ann1
         self.assertEqual(announcement.title, "Test Announcement")
         self.assertEqual(announcement.user, user)
         self.assertEqual(announcement.content, "test content")
         self.assertEqual(
             announcement.expiration_timestamp,
-            datetime.datetime(2100, 10, 1, 0, 0, tzinfo=datetime.timezone.utc),
+            "2100-10-1T00:00:00Z",
         )
 
     def test_list(self):
@@ -52,7 +52,7 @@ class AnnouncementTestCase(TestCase):
         self.assertEqual(announcements[0]["title"], "Test Announcement 2")
 
     def test_detail(self):
-        announcement = self.c.get("/api/announcements/1/").data
+        announcement = self.c.get(f"/api/announcements/{self.ann1.id}/").data
         self.assertEqual(announcement["title"], "Test Announcement")
 
     def test_create(self):
@@ -70,7 +70,7 @@ class AnnouncementTestCase(TestCase):
         self.assertEqual(announcement.title, "Test Announcement 3")
 
     def test_delete(self):
-        response = self.c.delete("/api/announcements/1/")
+        response = self.c.delete(f"/api/announcements/{self.ann1.id}/")
         self.assertEqual(response.status_code, 204)
         with self.assertRaises(Announcement.DoesNotExist):
             announcement = Announcement.objects.get(pk=1)

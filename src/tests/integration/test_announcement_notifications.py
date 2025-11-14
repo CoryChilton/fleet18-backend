@@ -10,14 +10,14 @@ from users.models import User
 class AnnouncementEmailTests(TestCase):
     def setUp(self):
         self.c = APIClient()
-        user1 = User.objects.create_user(
+        self.user1 = User.objects.create_user(
             username="test1",
             password="pass1",
             first_name="first1",
             last_name="last1",
             email="test1@test.com",
         )
-        user2 = User.objects.create_user(
+        self.user2 = User.objects.create_user(
             username="test2",
             password="pass2",
             first_name="first2",
@@ -35,7 +35,7 @@ class AnnouncementEmailTests(TestCase):
         )
         self.c.force_authenticate(user=admin_user)
         NotificationPreference.objects.create(
-            user=user1,
+            user=self.user1,
             notification_type=NotificationPreference.ANNOUNCEMENT,
             enabled=True,
         )
@@ -45,7 +45,7 @@ class AnnouncementEmailTests(TestCase):
             "/api/announcements/",
             {
                 "title": "Test Announcement",
-                "user": 1,
+                "user": self.user1.id,
                 "content": "test content",
                 "expiration_timestamp": "2100-10-1T00:00:00Z",
             },
@@ -56,7 +56,7 @@ class AnnouncementEmailTests(TestCase):
 
     def test_multiple_users_receive_announcement_emails(self):
         NotificationPreference.objects.create(
-            user_id=2,
+            user=self.user2,
             notification_type=NotificationPreference.ANNOUNCEMENT,
             enabled=True,
         )
@@ -64,7 +64,7 @@ class AnnouncementEmailTests(TestCase):
             "/api/announcements/",
             {
                 "title": "Test Announcement",
-                "user": 1,
+                "user": self.user1.id,
                 "content": "test content",
                 "expiration_timestamp": "2100-10-1T00:00:00Z",
             },
@@ -75,14 +75,14 @@ class AnnouncementEmailTests(TestCase):
 
     def test_user_with_pref_off_does_not_receive_announcement_email(self):
         NotificationPreference.objects.filter(
-            user_id=1,
+            user=self.user1,
             notification_type=NotificationPreference.ANNOUNCEMENT,
         ).update(enabled=False)
         response = self.c.post(
             "/api/announcements/",
             {
                 "title": "Test Announcement",
-                "user": 1,
+                "user": self.user1.id,
                 "content": "test content",
                 "expiration_timestamp": "2100-10-1T00:00:00Z",
             },

@@ -13,6 +13,10 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 import os
 from pathlib import Path
 
+from dotenv import load_dotenv
+
+load_dotenv(override=True)
+
 DJANGO_ENV = os.environ.get("DJANGO_ENV", "development")
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -96,8 +100,12 @@ WSGI_APPLICATION = "fleet18-backend.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.environ.get("DB_NAME", "fleet18db"),
+        "USER": os.environ.get("DB_USER"),
+        "PASSWORD": os.environ.get("DB_PASSWORD"),
+        "HOST": os.environ.get("DB_HOST", "localhost"),  # or '127.0.0.1'
+        "PORT": os.environ.get("DB_PORT", "5432"),  # default Postgres port
     }
 }
 

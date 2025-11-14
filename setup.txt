@@ -1,6 +1,7 @@
 export aws credentials
 python manage.py run server # start the django server
 python manage.py crontab add # add django-crontab cronjobs to run
+add DB information .env file: DB_NAME, DB_USER, DB_PASSWORD, DB_HOST, DB_PORT
 
 
 teardown:

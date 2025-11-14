@@ -15,14 +15,14 @@ from users.models import User
 class AnnouncementEmailTests(TestCase):
     def setUp(self):
         self.c = APIClient()
-        user1 = User.objects.create_user(
+        self.user1 = User.objects.create_user(
             username="test1",
             password="pass1",
             first_name="first1",
             last_name="last1",
             email="test1@test.com",
         )
-        user2 = User.objects.create_user(
+        self.user2 = User.objects.create_user(
             username="test2",
             password="pass2",
             first_name="first2",
@@ -40,7 +40,7 @@ class AnnouncementEmailTests(TestCase):
         )
         self.c.force_authenticate(user=admin_user)
         NotificationPreference.objects.create(
-            user=user1,
+            user=self.user1,
             notification_type=NotificationPreference.EVENT_REMINDER,
             enabled=True,
         )
@@ -67,7 +67,7 @@ class AnnouncementEmailTests(TestCase):
             datetime.now(ZoneInfo("America/Los_Angeles")) + timedelta(days=1)
         ).isoformat()
         NotificationPreference.objects.create(
-            user_id=2,
+            user=self.user2,
             notification_type=NotificationPreference.EVENT_REMINDER,
             enabled=True,
         )
@@ -89,7 +89,7 @@ class AnnouncementEmailTests(TestCase):
             datetime.now(ZoneInfo("America/Los_Angeles")) + timedelta(days=1)
         ).isoformat()
         NotificationPreference.objects.filter(
-            user_id=1,
+            user=self.user1,
             notification_type=NotificationPreference.EVENT_REMINDER,
         ).update(enabled=False)
         response = self.c.post(

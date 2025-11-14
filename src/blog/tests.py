@@ -13,32 +13,32 @@ from .models import BlogPost
 class BlogPostTestCase(TestCase):
     def setUp(self):
         self.c = APIClient()
-        racer = Racer.objects.create(first_name="Test1", last_name="Racer1")
-        user = User.objects.create_user(
+        self.racer1 = Racer.objects.create(first_name="Test1", last_name="Racer1")
+        self.user1 = User.objects.create_user(
             username="test1",
             password="pass1",
             first_name="first1",
             last_name="last1",
             email="test1@test.com",
-            racer=racer,
+            racer=self.racer1,
         )
-        self.c.force_authenticate(user=user)
-        event = Event.objects.create(
+        self.c.force_authenticate(user=self.user1)
+        self.event1 = Event.objects.create(
             title="Test Event",
             event_time="2100-10-1T00:00:00Z",
             entry_fee=12.34,
         )
-        BlogPost.objects.create(
-            title="title1", user=user, content="content1", event=event
+        self.blog1 = BlogPost.objects.create(
+            title="title1", user=self.user1, content="content1", event=self.event1
         )
-        BlogPost.objects.create(
-            title="title2", user=user, content="content2", event=event
+        self.blog2 = BlogPost.objects.create(
+            title="title2", user=self.user1, content="content2", event=self.event1
         )
 
     def test_model(self):
-        user = User.objects.get(pk=1)
-        event = Event.objects.get(pk=1)
-        blog_post = BlogPost.objects.get(pk=1)
+        user = self.user1
+        event = self.event1
+        blog_post = self.blog1
         self.assertEqual(blog_post.title, "title1")
         self.assertEqual(blog_post.user, user)
         self.assertEqual(blog_post.content, "content1")
@@ -49,7 +49,7 @@ class BlogPostTestCase(TestCase):
         self.assertEqual(len(blog_posts), 2)
 
     def test_detail(self):
-        blog_post = self.c.get("/api/blog_posts/1/").data
+        blog_post = self.c.get(f"/api/blog_posts/{self.blog1.id}/").data
         self.assertEqual(blog_post["title"], "title1")
 
     def test_create(self):
@@ -62,7 +62,7 @@ class BlogPostTestCase(TestCase):
         self.assertEqual(blog_post.title, "title3")
 
     def test_delete(self):
-        response = self.c.delete("/api/blog_posts/1/")
+        response = self.c.delete(f"/api/blog_posts/{self.blog1.id}/")
         self.assertEqual(response.status_code, 204)
         with self.assertRaises(BlogPost.DoesNotExist):
             BlogPost.objects.get(pk=1)

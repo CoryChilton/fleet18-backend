@@ -22,11 +22,11 @@ class RacerTestCase(TestCase):
             is_staff=True,
         )
         self.c.force_authenticate(user=admin_user)
-        Racer.objects.create(first_name="Test1", last_name="Racer1")
-        Racer.objects.create(first_name="Test2", last_name="Racer2")
+        self.racer1 = Racer.objects.create(first_name="Test1", last_name="Racer1")
+        self.racer2 = Racer.objects.create(first_name="Test2", last_name="Racer2")
 
     def test_model(self):
-        racer = Racer.objects.get(pk=1)
+        racer = self.racer1
         self.assertEqual(racer.first_name, "Test1")
         self.assertEqual(racer.last_name, "Racer1")
 
@@ -35,7 +35,7 @@ class RacerTestCase(TestCase):
         self.assertEqual(len(racers), 2)
 
     def test_detail(self):
-        racer = self.c.get("/api/racers/1/").data
+        racer = self.c.get(f"/api/racers/{self.racer1.id}/").data
         self.assertEqual(racer["last_name"], "Racer1")
 
     def test_create(self):
@@ -43,14 +43,14 @@ class RacerTestCase(TestCase):
             "/api/racers/", {"first_name": "Test3", "last_name": "Racer3"}
         )
         self.assertEqual(response.status_code, 201)
-        racer = Racer.objects.get(pk=3)
+        racer = Racer.objects.get(pk=response.data["id"])
         self.assertEqual(racer.first_name, "Test3")
 
     def test_delete(self):
-        response = self.c.delete("/api/racers/1/")
+        response = self.c.delete(f"/api/racers/{self.racer1.id}/")
         self.assertEqual(response.status_code, 204)
         with self.assertRaises(Racer.DoesNotExist):
-            Racer.objects.get(pk=1)
+            Racer.objects.get(pk=self.racer1.id)
 
     def test_duplicate_racer(self):
         response = self.c.post(
@@ -73,16 +73,16 @@ class UserTestCase(TestCase):
         )
         instance, token = AuthToken.objects.create(admin_user)
         self.c.credentials(HTTP_AUTHORIZATION=f"Token {token}")
-        racer = Racer.objects.create(first_name="Test1", last_name="Racer1")
-        User.objects.create_user(
+        self.racer = Racer.objects.create(first_name="Test1", last_name="Racer1")
+        self.user1 = User.objects.create_user(
             username="test1",
             password="pass1",
             first_name="first1",
             last_name="last1",
             email="test1@test.com",
-            racer=racer,
+            racer=self.racer,
         )
-        User.objects.create_user(
+        self.user2 = User.objects.create_user(
             username="test2",
             password="pass2",
             first_name="first2",
@@ -91,12 +91,12 @@ class UserTestCase(TestCase):
         )
 
     def test_model(self):
-        user = User.objects.get(pk=2)
+        user = self.user1
         self.assertEqual(user.username, "test1")
         self.assertEqual(user.first_name, "first1")
         self.assertEqual(user.last_name, "last1")
         self.assertEqual(user.email, "test1@test.com")
-        self.assertEqual(user.racer.pk, 1)
+        self.assertEqual(user.racer.pk, self.racer.id)
         self.assertTrue(user.check_password("pass1"))
         self.assertFalse(user.check_password("test"))
 
@@ -105,7 +105,7 @@ class UserTestCase(TestCase):
         self.assertEqual(len(users), 3)
 
     def test_detail(self):
-        user = self.c.get("/api/users/2/").data
+        user = self.c.get(f"/api/users/{self.user1.id}/").data
         self.assertEqual(user["username"], "test1")
 
 
@@ -197,7 +197,7 @@ class RegisterTestCase(TestCase):
                 "password": "testpassword2",
                 "password2": "testpassword2",
                 "email": "test@test.com",
-                "racer": 1,
+                "racer": racer.id,
             },
         )
         self.assertEqual(response.status_code, 400)
@@ -271,7 +271,7 @@ class LogoutTestCase(TestCase):
             last_name="last1",
             email="test1@test.com",
         )
-        Event.objects.create(
+        self.event = Event.objects.create(
             title="Test Event",
             event_time="2100-10-1T00:00:00Z",
             entry_fee=12.34,
@@ -291,7 +291,7 @@ class LogoutTestCase(TestCase):
         self.c.credentials(HTTP_AUTHORIZATION=f"Token {token}")
         response_blog1 = self.c.post(
             "/api/blog_posts/",
-            {"title": "title1", "content": "content1", "event": 1},
+            {"title": "title1", "content": "content1", "event": self.event.id},
         )
         self.assertEqual(response_blog1.status_code, 201)
         response2 = self.c.post("/api/auth/logout/")
@@ -300,7 +300,7 @@ class LogoutTestCase(TestCase):
         self.assertEqual(response3.status_code, 401)
         response_blog2 = self.c.post(
             "/api/blog_posts/",
-            {"title": "title1", "content": "content1", "event": 1},
+            {"title": "title1", "content": "content1", "event": self.event.id},
         )
         self.assertEqual(response_blog2.status_code, 401)
 
@@ -325,13 +325,13 @@ class LogoutTestCase(TestCase):
         self.c.credentials(HTTP_AUTHORIZATION=f"Token {token1}")
         response_blog1 = self.c.post(
             "/api/blog_posts/",
-            {"title": "title1", "content": "content1", "event": 1},
+            {"title": "title1", "content": "content1", "event": self.event.id},
         )
         self.assertEqual(response_blog1.status_code, 201)
         self.c.credentials(HTTP_AUTHORIZATION=f"Token {token2}")
         response_blog1 = self.c.post(
             "/api/blog_posts/",
-            {"title": "title1", "content": "content1", "event": 1},
+            {"title": "title1", "content": "content1", "event": self.event.id},
         )
         self.assertEqual(response_blog1.status_code, 201)
         self.c.credentials(HTTP_AUTHORIZATION=f"Token {token1}")
@@ -339,12 +339,12 @@ class LogoutTestCase(TestCase):
         self.assertEqual(response3.status_code, 204)
         response_blog2 = self.c.post(
             "/api/blog_posts/",
-            {"title": "title1", "content": "content1", "event": 1},
+            {"title": "title1", "content": "content1", "event": self.event.id},
         )
         self.assertEqual(response_blog2.status_code, 401)
         self.c.credentials(HTTP_AUTHORIZATION=f"Token {token2}")
         response_blog3 = self.c.post(
             "/api/blog_posts/",
-            {"title": "title1", "content": "content1", "event": 1},
+            {"title": "title1", "content": "content1", "event": self.event.id},
         )
         self.assertEqual(response_blog3.status_code, 401)

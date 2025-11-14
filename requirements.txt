@@ -23,8 +23,10 @@ nodeenv==1.9.1
 pillow==11.3.0
 platformdirs==4.5.0
 pre_commit==4.3.0
+psycopg==3.2.12
 Pygments==2.19.2
 python-dateutil==2.9.0.post0
+python-dotenv==1.2.1
 PyYAML==6.0.2
 rav==0.1.1
 requests==2.32.5

@@ -15,25 +15,25 @@ class EventTestCase(TestCase):
             username="testuser", password="testpassword", is_staff=True
         )
         self.c.force_authenticate(user=user)
-        Event.objects.create(
+        self.event1 = Event.objects.create(
             title="Test Event",
             event_time="2100-10-1T00:00:00Z",
             entry_fee=12.34,
             description="test event description",
             location="Leo Ryan Park",
         )
-        Event.objects.create(
+        self.event2 = Event.objects.create(
             title="Test Event 2",
             event_time="2101-10-1T00:00:00Z",
             entry_fee=20.00,
         )
 
     def test_model(self):
-        event = Event.objects.get(pk=1)
+        event = self.event1
         self.assertEqual(event.title, "Test Event")
         self.assertEqual(
             event.event_time,
-            datetime.datetime(2100, 10, 1, 0, 0, tzinfo=datetime.timezone.utc),
+            "2100-10-1T00:00:00Z",
         )
         self.assertEqual(float(event.entry_fee), 12.34)
         self.assertEqual(event.description, "test event description")
@@ -44,7 +44,7 @@ class EventTestCase(TestCase):
         self.assertEqual(len(events), 2)
 
     def test_detail(self):
-        event = self.c.get("/api/events/1/").data
+        event = self.c.get(f"/api/events/{self.event1.id}/").data
         self.assertEqual(event["title"], "Test Event")
 
     def test_create(self):
@@ -57,14 +57,14 @@ class EventTestCase(TestCase):
             },
         )
         self.assertEqual(response.status_code, 201)
-        event = Event.objects.get(pk=3)
+        event = Event.objects.get(pk=response.data["id"])
         self.assertEqual(event.title, "Test Event 3")
 
     def test_delete(self):
-        response = self.c.delete("/api/events/1/")
+        response = self.c.delete(f"/api/events/{self.event1.id}/")
         self.assertEqual(response.status_code, 204)
         with self.assertRaises(Event.DoesNotExist):
-            Event.objects.get(pk=1)
+            Event.objects.get(pk=self.event1.id)
 
     def test_invalid_event_time(self):
         response = self.c.post(
@@ -96,23 +96,23 @@ class RaceTestCase(TestCase):
             username="testuser", password="testpassword", is_staff=True
         )
         self.c.force_authenticate(user=user)
-        event = Event.objects.create(
+        self.event = Event.objects.create(
             title="Test Event",
             event_time="2100-10-1T00:00:00Z",
             entry_fee=12.34,
         )
-        Race.objects.create(
-            event=event,
+        self.race1 = Race.objects.create(
+            event=self.event,
             number=1,
         )
-        Race.objects.create(
-            event=event,
+        self.race2 = Race.objects.create(
+            event=self.event,
             number=2,
         )
 
     def test_model(self):
-        race = Race.objects.get(pk=1)
-        self.assertEqual(race.event_id, 1)
+        race = self.race1
+        self.assertEqual(race.event_id, self.event.id)
         self.assertEqual(race.number, 1)
         self.assertEqual(race.type, Race.COURSE)
         self.assertEqual(race.name, None)
@@ -122,31 +122,36 @@ class RaceTestCase(TestCase):
         self.assertEqual(len(races), 2)
 
     def test_detail(self):
-        race = self.c.get("/api/races/1/").data
-        self.assertEqual(race["event"], 1)
+        race = self.c.get(f"/api/races/{self.race1.id}/").data
+        self.assertEqual(race["event"], self.event.id)
         self.assertEqual(race["number"], 1)
 
     def test_create(self):
         response = self.c.post(
             "/api/races/",
-            {"event": 1, "number": 3, "type": "MARATHON", "name": "test race"},
+            {
+                "event": self.event.id,
+                "number": 3,
+                "type": "MARATHON",
+                "name": "test race",
+            },
         )
         self.assertEqual(response.status_code, 201)
-        race = Race.objects.get(pk=3)
+        race = Race.objects.get(pk=response.data["id"])
         self.assertEqual(race.name, "test race")
         self.assertEqual(race.type, Race.MARATHON)
 
     def test_delete(self):
-        response = self.c.delete("/api/races/1/")
+        response = self.c.delete(f"/api/races/{self.race1.id}/")
         self.assertEqual(response.status_code, 204)
         with self.assertRaises(Race.DoesNotExist):
-            Race.objects.get(pk=1)
+            Race.objects.get(pk=self.race1.id)
 
     def test_not_unique_event_race_number(self):
         response1 = self.c.post(
             "/api/races/",
             {
-                "event": 1,
+                "event": self.event.id,
                 "number": 1,
             },
         )
@@ -160,27 +165,31 @@ class ResultTestCase(TestCase):
             username="testuser", password="testpassword", is_staff=True
         )
         self.c.force_authenticate(user=user)
-        event = Event.objects.create(
+        self.event = Event.objects.create(
             title="Test Event",
             event_time="2100-10-1T00:00:00Z",
             entry_fee=12.34,
         )
-        race = Race.objects.create(
-            event=event,
+        self.race1 = Race.objects.create(
+            event=self.event,
             number=1,
         )
-        race2 = Race.objects.create(
-            event=event,
+        self.race2 = Race.objects.create(
+            event=self.event,
             number=2,
         )
-        racer = Racer.objects.create(first_name="Cory", last_name="Chilton")
-        Result.objects.create(race=race, racer=racer, position=1, status="FIN")
-        Result.objects.create(race=race2, racer=racer, position=5, status="DNF")
+        self.racer = Racer.objects.create(first_name="Cory", last_name="Chilton")
+        self.result1 = Result.objects.create(
+            race=self.race1, racer=self.racer, position=1, status="FIN"
+        )
+        self.result2 = Result.objects.create(
+            race=self.race2, racer=self.racer, position=5, status="DNF"
+        )
 
     def test_model(self):
-        result = Result.objects.get(pk=1)
-        self.assertEqual(result.race.pk, 1)
-        self.assertEqual(result.racer.pk, 1)
+        result = self.result1
+        self.assertEqual(result.race.pk, self.race1.id)
+        self.assertEqual(result.racer.pk, self.racer.id)
         self.assertEqual(result.position, 1)
         self.assertEqual(result.status, "FIN")
 
@@ -189,39 +198,39 @@ class ResultTestCase(TestCase):
         self.assertEqual(len(results), 2)
 
     def test_detail(self):
-        results = self.c.get("/api/results/1/").data
-        self.assertEqual(results["race"], 1)
+        results = self.c.get(f"/api/results/{self.result1.id}/").data
+        self.assertEqual(results["race"], self.race1.id)
 
     def test_create(self):
         race3 = Race.objects.create(
-            event_id=1,
+            event=self.event,
             number=3,
         )
         response = self.c.post(
             "/api/results/",
             {
-                "race": 3,
-                "racer": 1,
+                "race": race3.id,
+                "racer": self.racer.id,
                 "status": "FIN",
                 "position": 23,
             },
         )
         self.assertEqual(response.status_code, 201)
-        result = Result.objects.get(pk=3)
+        result = Result.objects.get(pk=response.data["id"])
         self.assertEqual(result.position, 23)
 
     def test_delete(self):
-        response = self.c.delete("/api/results/1/")
+        response = self.c.delete(f"/api/results/{self.result1.id}/")
         self.assertEqual(response.status_code, 204)
         with self.assertRaises(Result.DoesNotExist):
-            Result.objects.get(pk=1)
+            Result.objects.get(pk=self.result1.id)
 
     def test_invalid_position(self):
         response1 = self.c.post(
             "/api/results/",
             {
-                "race": 1,
-                "racer": 1,
+                "race": self.race1.id,
+                "racer": self.racer.id,
                 "status": "FIN",
                 "position": -1,
             },
@@ -230,8 +239,8 @@ class ResultTestCase(TestCase):
         response2 = self.c.post(
             "/api/results/",
             {
-                "race": 1,
-                "racer": 1,
+                "race": self.race1.id,
+                "racer": self.racer.id,
                 "status": "FIN",
                 "position": 0,
             },
@@ -242,8 +251,8 @@ class ResultTestCase(TestCase):
         response1 = self.c.post(
             "/api/results/",
             {
-                "race": 1,
-                "racer": 1,
+                "race": self.race1.id,
+                "racer": self.racer.id,
                 "status": "ABC",
                 "position": 1,
             },
@@ -254,20 +263,20 @@ class ResultTestCase(TestCase):
         response1 = self.c.post(
             "/api/results/",
             {
-                "race": 1,
-                "racer": 2,
+                "race": self.race1.id,
+                "racer": self.racer.id + 1,
                 "status": "DNF",
                 "position": 1,
             },
         )
         self.assertEqual(response1.status_code, 400)
 
-    def test_invalid_event(self):
+    def test_invalid_race(self):
         response1 = self.c.post(
             "/api/results/",
             {
-                "race": 3,
-                "racer": 1,
+                "race": self.race2.id + 1,
+                "racer": self.racer.id,
                 "status": "DNF",
                 "position": 1,
             },
@@ -278,8 +287,8 @@ class ResultTestCase(TestCase):
         response = self.c.post(
             "/api/results/",
             {
-                "race": 1,
-                "racer": 1,
+                "race": self.race1.id,
+                "racer": self.racer.id,
                 "status": "DNF",
                 "position": 1,
             },
@@ -287,38 +296,38 @@ class ResultTestCase(TestCase):
         self.assertEqual(response.status_code, 400)
 
     def test_event_results(self):
-        event = Event.objects.create(
+        event2 = Event.objects.create(
             title="Test Event 2",
             event_time="2100-10-1T00:00:00Z",
             entry_fee=12.34,
         )
-        params1 = {"race__event": 1}
+        params1 = {"race__event": self.event.id}
         response1 = self.c.get("/api/results/", data=params1).data
         self.assertEqual(len(response1), 2)
 
-        params2 = {"race__event": 2}
+        params2 = {"race__event": event2.id}
         response2 = self.c.get("/api/results/", data=params2).data
         self.assertEqual(len(response2), 0)
 
     def test_race_results(self):
-        race = Race.objects.create(
-            event_id=1,
+        race3 = Race.objects.create(
+            event=self.event,
             number=3,
         )
-        params1 = {"race": 1}
+        params1 = {"race": self.race1.id}
         response1 = self.c.get("/api/results/", data=params1).data
         self.assertEqual(len(response1), 1)
 
-        params2 = {"race": 3}
+        params2 = {"race": race3.id}
         response2 = self.c.get("/api/results/", data=params2).data
         self.assertEqual(len(response2), 0)
 
     def test_racer_results(self):
-        racer = Racer.objects.create(first_name="Cory2", last_name="Chilton2")
-        params1 = {"racer": 1}
+        racer2 = Racer.objects.create(first_name="Cory2", last_name="Chilton2")
+        params1 = {"racer": self.racer.id}
         response1 = self.c.get("/api/results/", data=params1).data
         self.assertEqual(len(response1), 2)
 
-        params2 = {"racer": 2}
+        params2 = {"racer": racer2.id}
         response2 = self.c.get("/api/results/", data=params2).data
         self.assertEqual(len(response2), 0)
