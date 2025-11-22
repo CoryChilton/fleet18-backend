@@ -8,6 +8,7 @@ class AnnouncementSerializer(serializers.ModelSerializer):
     class Meta:
         model = Announcement
         fields = "__all__"
+        read_only_fields = ["user"]
 
     def validate_expiration_timestamp(self, value):
         """ "
